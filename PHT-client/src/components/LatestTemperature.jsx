@@ -2,7 +2,7 @@ import { formatDistanceToNow, format, isToday, isYesterday, getMonth } from 'dat
 import { it } from 'date-fns/locale';
 import './LatestTemperature.css';
 
-const LatestTemperature = ({ temperature, timestamp }) => {
+const LatestTemperature = ({ temperature, timestamp, minMax, period }) => {
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return '';
     
@@ -80,6 +80,17 @@ const LatestTemperature = ({ temperature, timestamp }) => {
     return { color, message };
   };
 
+  const getPeriodLabel = (period) => {
+    switch(period) {
+      case 'today': return 'oggi';
+      case 1: return 'ultime 24 ore';
+      case 3: return 'ultimi 3 giorni';
+      case 7: return 'ultimi 7 giorni';
+      case 30: return 'ultimi 30 giorni';
+      default: return 'periodo selezionato';
+    }
+  };
+
   const { color, message } = getTemperatureInfo(temperature, timestamp);
 
   return (
@@ -101,6 +112,32 @@ const LatestTemperature = ({ temperature, timestamp }) => {
           </svg>
           {timestamp && formatTimestamp(timestamp)}
         </div>
+        
+        {minMax && (
+          <div className="temperature-minmax">
+            <div className="minmax-item">
+              <span className="minmax-icon">❄️</span>
+              <div className="minmax-info">
+                <span className="minmax-label">Min {getPeriodLabel(period)}</span>
+                <span className="minmax-value">{minMax.min.toFixed(1)}°C</span>
+                {minMax.minTime && (
+                  <span className="minmax-time">{format(new Date(minMax.minTime), 'HH:mm')}</span>
+                )}
+              </div>
+            </div>
+            <div className="minmax-divider"></div>
+            <div className="minmax-item">
+              <span className="minmax-icon">🔥</span>
+              <div className="minmax-info">
+                <span className="minmax-label">Max {getPeriodLabel(period)}</span>
+                <span className="minmax-value">{minMax.max.toFixed(1)}°C</span>
+                {minMax.maxTime && (
+                  <span className="minmax-time">{format(new Date(minMax.maxTime), 'HH:mm')}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

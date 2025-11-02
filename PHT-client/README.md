@@ -6,8 +6,11 @@ App React per visualizzare i dati storici di temperatura da Firebase Realtime Da
 
 - **Ultima temperatura**: Mostra l'ultima temperatura rilevata con timestamp formattato (oggi/ieri/data)
 - **Grafico storico**: Visualizza l'andamento della temperatura nel tempo
-- **Selezione periodo**: Scegli tra 24 ore, 3 giorni, 7 giorni o 30 giorni (default: 3 giorni)
+- **Selezione periodo**: Scegli tra Oggi, 24 ore, 3 giorni, 7 giorni o 30 giorni (default: 3 giorni)
 - **Aggiornamento in tempo reale**: I dati si aggiornano automaticamente quando vengono aggiunte nuove misurazioni
+- **PWA (Progressive Web App)**: Installabile su dispositivi mobile e desktop, funziona offline
+- **Colori dinamici**: Visualizzazione con colori adattati alla temperatura e stagione
+- **Design moderno**: Interfaccia pulita e responsive
 
 ## Configurazione Firebase
 
@@ -102,4 +105,25 @@ firebase deploy
 - Firebase Realtime Database
 - Recharts (grafici)
 - date-fns (gestione date)
+- vite-plugin-pwa (Progressive Web App)
+
+## PWA - Progressive Web App
+
+L'app è configurata come PWA e può essere installata su dispositivi mobile e desktop.
+
+### Icone PWA
+
+Prima del deploy, sostituisci i file placeholder nella cartella `public/` con le tue icone:
+- `pwa-192x192.png` - Icona 192x192 per Android
+- `pwa-512x512.png` - Icona 512x512 per Android e splash screen
+- `apple-touch-icon.png` - Icona 180x180 per iOS
+
+Puoi usare strumenti come [PWA Builder](https://www.pwabuilder.com/imageGenerator) per generare le icone.
+
+### Installazione PWA
+
+Dopo il deploy:
+- **Android/Chrome**: Clicca su "Aggiungi a schermata Home" nel menu del browser
+- **iOS/Safari**: Tap sul pulsante condividi e seleziona "Aggiungi a schermata Home"
+- **Desktop**: Clicca sull'icona di installazione nella barra degli indirizzi
 

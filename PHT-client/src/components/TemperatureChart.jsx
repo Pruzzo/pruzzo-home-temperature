@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, getMonth } from 'date-fns';
 import { it } from 'date-fns/locale';
 import './TemperatureChart.css';
 
-const TemperatureChart = ({ data }) => {
-  const [period, setPeriod] = useState(3);
+const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
+  const [period, setPeriod] = useState('today');
 
   const periods = [
     { label: 'Oggi', value: 'today' },
@@ -60,6 +60,16 @@ const TemperatureChart = ({ data }) => {
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     }
   }, [data, period]);
+
+  // Notifica il parent component quando cambiano periodo o dati filtrati
+  useEffect(() => {
+    if (onPeriodChange) {
+      onPeriodChange(period);
+    }
+    if (onFilteredDataChange) {
+      onFilteredDataChange(filteredData);
+    }
+  }, [period, filteredData, onPeriodChange, onFilteredDataChange]);
 
   const formatXAxis = (timestamp) => {
     const date = new Date(timestamp);

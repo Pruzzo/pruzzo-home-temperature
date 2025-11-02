@@ -16,7 +16,7 @@ const char* FIREBASE_URL  = "https://pruzzo-home-temperature-default-rtdb.europe
 
 const uint8_t  SAMPLES = 5;
 const uint16_t SAMPLE_DELAY_MS = 750;
-const uint32_t SLEEP_SECONDS = 60;
+const uint32_t SLEEP_SECONDS = 60 * 30;
 
 // ---------- GLOBALS ----------
 OneWire oneWire(ONE_WIRE_BUS);

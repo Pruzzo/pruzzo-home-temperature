@@ -10,6 +10,8 @@ function App() {
   const [latestTemp, setLatestTemp] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPeriod, setCurrentPeriod] = useState('today');
+  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     const temperaturesRef = ref(database, 'temperatures');
@@ -102,12 +104,23 @@ function App() {
         {latestTemp && (
           <LatestTemperature 
             temperature={latestTemp.value} 
-            timestamp={latestTemp.timestamp} 
+            timestamp={latestTemp.timestamp}
+            minMax={filteredData.length > 0 ? {
+              min: Math.min(...filteredData.map(d => d.value)),
+              max: Math.max(...filteredData.map(d => d.value)),
+              minTime: filteredData.find(d => d.value === Math.min(...filteredData.map(x => x.value)))?.timestamp,
+              maxTime: filteredData.find(d => d.value === Math.max(...filteredData.map(x => x.value)))?.timestamp
+            } : null}
+            period={currentPeriod}
           />
         )}
         
         {temperatures.length > 0 ? (
-          <TemperatureChart data={temperatures} />
+          <TemperatureChart 
+            data={temperatures}
+            onPeriodChange={setCurrentPeriod}
+            onFilteredDataChange={setFilteredData}
+          />
         ) : (
           <div className="no-data-message">
             Nessun dato disponibile
