@@ -12,6 +12,28 @@ function App() {
   const [error, setError] = useState(null);
   const [currentPeriod, setCurrentPeriod] = useState('today');
   const [filteredData, setFilteredData] = useState([]);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Recupera la preferenza salvata o usa la preferenza di sistema
+    const saved = localStorage.getItem('darkMode');
+    if (saved !== null) {
+      return saved === 'true';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  // Applica la dark mode al body
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   useEffect(() => {
     const temperaturesRef = ref(database, 'temperatures');
@@ -99,6 +121,9 @@ function App() {
             <span className="title-main">Monitoraggio Temperatura</span>
             <span className="title-sub">Casa • Comago (GE)</span>
           </h1>
+          <button className="dark-mode-toggle" onClick={toggleDarkMode} aria-label="Toggle dark mode">
+            {darkMode ? '☀️' : '🌙'}
+          </button>
         </header>
         
         {latestTemp && (

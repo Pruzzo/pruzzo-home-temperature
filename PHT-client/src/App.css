@@ -2,6 +2,11 @@
   min-height: 100vh;
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
   padding: 2rem 1rem;
+  transition: background 0.3s ease;
+}
+
+.dark-mode .app {
+  background: linear-gradient(to bottom, #1a1a2e, #0f0f1e);
 }
 
 .container {
@@ -16,6 +21,38 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  position: relative;
+}
+
+.dark-mode-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dark-mode .dark-mode-toggle {
+  background: rgba(30, 30, 46, 0.9);
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode-toggle:active {
+  transform: scale(0.95);
 }
 
 .header-icon {
@@ -59,6 +96,10 @@
   text-transform: uppercase;
 }
 
+.dark-mode .title-sub {
+  color: #a0a0b0;
+}
+
 h1 {
   text-align: center;
   color: #2c3e50;
@@ -77,11 +118,21 @@ h1 {
   color: #666;
 }
 
+.dark-mode .loading,
+.dark-mode .no-data-message {
+  color: #a0a0b0;
+}
+
 .error {
   color: #e74c3c;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.1);
+}
+
+.dark-mode .error {
+  background: rgba(30, 30, 46, 0.8);
+  color: #ff6b6b;
 }
 
 @media (max-width: 768px) {
@@ -95,5 +146,11 @@ h1 {
   
   .app {
     padding: 1rem 0.5rem;
+  }
+  
+  .dark-mode-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 }

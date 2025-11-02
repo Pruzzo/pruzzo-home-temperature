@@ -3,6 +3,12 @@
   padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark-mode .temperature-chart {
+  background: rgba(30, 30, 46, 0.8);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .period-selector {
@@ -24,7 +30,18 @@
   transition: all 0.2s ease;
 }
 
+.dark-mode .period-button {
+  background: rgba(40, 40, 60, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #a0a0b0;
+}
+
 .period-button:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.dark-mode .period-button:hover {
   border-color: #667eea;
   color: #667eea;
 }
@@ -48,6 +65,11 @@
   border: 1px solid #e0e0e0;
 }
 
+.dark-mode .custom-tooltip {
+  background: rgba(30, 30, 46, 0.98);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .tooltip-temp {
   margin: 0 0 0.25rem 0;
   font-size: 1.25rem;
@@ -61,6 +83,10 @@
   color: #666;
 }
 
+.dark-mode .tooltip-time {
+  color: #a0a0b0;
+}
+
 .no-data {
   display: flex;
   align-items: center;
@@ -68,6 +94,10 @@
   height: 400px;
   color: #999;
   font-size: 1.1rem;
+}
+
+.dark-mode .no-data {
+  color: #707080;
 }
 
 .chart-legend {
@@ -79,6 +109,10 @@
   padding-top: 1rem;
   border-top: 1px solid #e0e0e0;
   flex-wrap: wrap;
+}
+
+.dark-mode .chart-legend {
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .legend-item {
@@ -98,4 +132,8 @@
   font-size: 0.9rem;
   color: #666;
   font-weight: 500;
+}
+
+.dark-mode .legend-label {
+  color: #a0a0b0;
 }

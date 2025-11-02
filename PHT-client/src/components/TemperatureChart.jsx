@@ -6,6 +6,9 @@ import './TemperatureChart.css';
 
 const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
   const [period, setPeriod] = useState('today');
+  
+  // Rileva dark mode
+  const isDarkMode = document.body.classList.contains('dark-mode');
 
   const periods = [
     { label: 'Oggi', value: 'today' },
@@ -156,16 +159,16 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
           <>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={filteredData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#333' : '#e0e0e0'} />
                 <XAxis 
                   dataKey="timestamp" 
                   tickFormatter={formatXAxis}
-                  stroke="#666"
+                  stroke={isDarkMode ? '#a0a0b0' : '#666'}
                   style={{ fontSize: '0.85rem' }}
                 />
                 <YAxis 
                   domain={['dataMin - 2', 'dataMax + 2']}
-                  stroke="#666"
+                  stroke={isDarkMode ? '#a0a0b0' : '#666'}
                   style={{ fontSize: '0.85rem' }}
                   tickFormatter={(value) => `${value}°C`}
                 />
