@@ -58,7 +58,13 @@ function App() {
     return (
       <div className="app">
         <div className="container">
-          <h1>Monitoraggio Temperatura</h1>
+          <header className="app-header">
+            <div className="header-icon">🏠</div>
+            <h1 className="app-title">
+              <span className="title-main">Monitoraggio Temperatura</span>
+              <span className="title-sub">Casa • Comago (GE)</span>
+            </h1>
+          </header>
           <div className="loading">Caricamento dati...</div>
         </div>
       </div>
@@ -69,7 +75,13 @@ function App() {
     return (
       <div className="app">
         <div className="container">
-          <h1>Monitoraggio Temperatura</h1>
+          <header className="app-header">
+            <div className="header-icon">🏠</div>
+            <h1 className="app-title">
+              <span className="title-main">Monitoraggio Temperatura</span>
+              <span className="title-sub">Casa • Comago (GE)</span>
+            </h1>
+          </header>
           <div className="error">{error}</div>
         </div>
       </div>
@@ -79,7 +91,13 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <h1>Monitoraggio Temperatura</h1>
+        <header className="app-header">
+          <div className="header-icon">🏠</div>
+          <h1 className="app-title">
+            <span className="title-main">Monitoraggio Temperatura</span>
+            <span className="title-sub">Casa • Comago (GE)</span>
+          </h1>
+        </header>
         
         {latestTemp && (
           <LatestTemperature 
