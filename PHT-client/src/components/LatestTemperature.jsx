@@ -1,4 +1,4 @@
-import { formatDistanceToNow, format, isToday, isYesterday, getMonth } from 'date-fns';
+import { formatDistanceToNow, format, isToday, isYesterday, getMonth, differenceInMinutes } from 'date-fns';
 import { it } from 'date-fns/locale';
 import './LatestTemperature.css';
 
@@ -7,14 +7,24 @@ const LatestTemperature = ({ temperature, timestamp, minMax, period }) => {
     if (!timestamp) return '';
     
     const date = new Date(timestamp);
+    const now = new Date();
+    const minutesAgo = differenceInMinutes(now, date);
     
+    let baseText = '';
     if (isToday(date)) {
-      return `oggi alle ${format(date, 'HH:mm')}`;
+      baseText = `oggi alle ${format(date, 'HH:mm')}`;
     } else if (isYesterday(date)) {
-      return `ieri alle ${format(date, 'HH:mm')}`;
+      baseText = `ieri alle ${format(date, 'HH:mm')}`;
     } else {
       return format(date, 'd MMM', { locale: it });
     }
+    
+    // Aggiungi "n minuti fa" se meno di un'ora
+    if (minutesAgo < 60 && minutesAgo >= 0) {
+      return `${baseText} (${minutesAgo} min fa)`;
+    }
+    
+    return baseText;
   };
 
   // Determina colore e messaggio in base alla temperatura e stagione
@@ -95,7 +105,7 @@ const LatestTemperature = ({ temperature, timestamp, minMax, period }) => {
 
   return (
     <div className="latest-temperature" style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)` }}>
-      <div className="temperature-icon">🌡️</div>
+      {/* <div className="temperature-icon">🌡️</div> */}
       <div className="temperature-content">
         <div className="temperature-label">Temperatura attuale</div>
         <div className="temperature-display">

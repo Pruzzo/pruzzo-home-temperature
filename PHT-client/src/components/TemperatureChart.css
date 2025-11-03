@@ -11,11 +11,29 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.period-selector {
+.chart-header {
   display: flex;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+}
+
+.period-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.5rem;
+  flex: 1;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .period-selector {
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
+  }
 }
 
 .period-button {
@@ -28,6 +46,17 @@
   font-weight: 500;
   color: #666;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 639px) {
+  .period-button {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+  }
 }
 
 .dark-mode .period-button {
@@ -48,6 +77,44 @@
 
 .period-button.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.comparison-toggle {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .comparison-toggle {
+    width: auto;
+  }
+}
+
+.dark-mode .comparison-toggle {
+  background: rgba(40, 40, 60, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #a0a0b0;
+}
+
+.comparison-toggle:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.comparison-toggle.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   color: white;
   border-color: transparent;
 }
@@ -136,4 +203,140 @@
 
 .dark-mode .legend-label {
   color: #a0a0b0;
+}
+
+.legend-line {
+  width: 30px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.legend-line-comparison {
+  width: 30px;
+  display: inline-block;
+  position: relative;
+}
+
+.legend-divider-small {
+  width: 1px;
+  height: 20px;
+  background: rgba(128, 128, 128, 0.2);
+}
+
+/* Comparison settings */
+.comparison-settings {
+  background: rgba(102, 126, 234, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.dark-mode .comparison-settings {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+/* Custom period settings */
+.custom-period-settings {
+  background: rgba(249, 115, 22, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(249, 115, 22, 0.1);
+}
+
+.dark-mode .custom-period-settings {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+.comparison-mode {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.comparison-mode label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.dark-mode .comparison-mode label {
+  color: #a0a0b0;
+}
+
+.comparison-mode input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+}
+
+.custom-date-range {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.date-input-group label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.dark-mode .date-input-group label {
+  color: #a0a0b0;
+}
+
+.date-input-group input[type="date"] {
+  padding: 0.6rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark-mode .date-input-group input[type="date"] {
+  background: rgba(40, 40, 60, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  color-scheme: dark;
+}
+
+.date-input-group input[type="date"]:hover {
+  border-color: #667eea;
+}
+
+.date-input-group input[type="date"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.date-hint {
+  font-size: 0.85rem;
+  color: #999;
+  font-style: italic;
+  align-self: center;
+}
+
+.dark-mode .date-hint {
+  color: #707080;
 }

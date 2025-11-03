@@ -6,16 +6,24 @@ import './TemperatureChart.css';
 
 const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
   const [period, setPeriod] = useState('today');
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonMode, setComparisonMode] = useState('auto'); // 'auto' o 'custom'
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [customPeriodStartDate, setCustomPeriodStartDate] = useState('');
+  const [customPeriodEndDate, setCustomPeriodEndDate] = useState('');
   
   // Rileva dark mode
   const isDarkMode = document.body.classList.contains('dark-mode');
 
   const periods = [
     { label: 'Oggi', value: 'today' },
+    { label: 'Ieri', value: 'yesterday' },
     { label: '24 ore', value: 1 },
     { label: '3 giorni', value: 3 },
     { label: '7 giorni', value: 7 },
-    { label: '30 giorni', value: 30 }
+    { label: '30 giorni', value: 30 },
+    { label: 'Personalizzato', value: 'custom' }
   ];
 
   // Funzione per determinare il colore in base alla temperatura e stagione
@@ -54,6 +62,39 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
       return data
         .filter(item => new Date(item.timestamp).getTime() >= todayMidnight.getTime())
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    } else if (period === 'yesterday') {
+      // Filtra per ieri (dalla mezzanotte di ieri alla mezzanotte di oggi)
+      const todayMidnight = new Date();
+      todayMidnight.setHours(0, 0, 0, 0);
+      
+      const yesterdayMidnight = new Date();
+      yesterdayMidnight.setDate(yesterdayMidnight.getDate() - 1);
+      yesterdayMidnight.setHours(0, 0, 0, 0);
+      
+      return data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= yesterdayMidnight.getTime() && time < todayMidnight.getTime();
+        })
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    } else if (period === 'custom') {
+      // Periodo personalizzato
+      if (!customPeriodStartDate) return [];
+      
+      const startCustom = new Date(customPeriodStartDate);
+      startCustom.setHours(0, 0, 0, 0);
+      
+      const endCustom = customPeriodEndDate 
+        ? new Date(customPeriodEndDate)
+        : new Date(customPeriodStartDate);
+      endCustom.setHours(23, 59, 59, 999);
+      
+      return data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= startCustom.getTime() && time <= endCustom.getTime();
+        })
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     } else {
       // Filtra per periodo in giorni
       const periodMs = period * 24 * 60 * 60 * 1000;
@@ -62,7 +103,143 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
         .filter(item => (now - new Date(item.timestamp).getTime()) <= periodMs)
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     }
-  }, [data, period]);
+  }, [data, period, customPeriodStartDate, customPeriodEndDate]);
+
+  // Dati del periodo precedente per comparazione
+  const previousPeriodData = useMemo(() => {
+    if (!showComparison) return [];
+    
+    // Modalità custom: usa le date selezionate dall'utente
+    if (comparisonMode === 'custom' && customStartDate) {
+      const startCustom = new Date(customStartDate);
+      startCustom.setHours(0, 0, 0, 0);
+      
+      const endCustom = customEndDate 
+        ? new Date(customEndDate)
+        : new Date(customStartDate);
+      endCustom.setHours(23, 59, 59, 999);
+      
+      // Filtra i dati nel range custom
+      const customData = data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= startCustom.getTime() && time <= endCustom.getTime();
+        })
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      
+      if (customData.length === 0) return [];
+      
+      // Calcola l'offset per allineare i dati custom al periodo corrente
+      const firstCustomTime = new Date(customData[0].timestamp).getTime();
+      const firstCurrentTime = filteredData.length > 0 
+        ? new Date(filteredData[0].timestamp).getTime()
+        : Date.now();
+      const offset = firstCurrentTime - firstCustomTime;
+      
+      return customData.map(item => ({
+        ...item,
+        timestamp: new Date(new Date(item.timestamp).getTime() + offset).toISOString(),
+        isPrevious: true
+      }));
+    }
+    
+    // Modalità auto: periodo precedente automatico
+    const now = Date.now();
+    
+    if (period === 'today') {
+      // Ieri stesso orario
+      const yesterdayMidnight = new Date();
+      yesterdayMidnight.setDate(yesterdayMidnight.getDate() - 1);
+      yesterdayMidnight.setHours(0, 0, 0, 0);
+      
+      const yesterdayEnd = new Date();
+      yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
+      yesterdayEnd.setHours(23, 59, 59, 999);
+      
+      return data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= yesterdayMidnight.getTime() && time <= yesterdayEnd.getTime();
+        })
+        .map(item => ({
+          ...item,
+          // Sposta il timestamp di 1 giorno avanti per allinearlo
+          timestamp: new Date(new Date(item.timestamp).getTime() + 24 * 60 * 60 * 1000).toISOString(),
+          isPrevious: true
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    } else if (period === 'yesterday') {
+      // L'altro ieri (2 giorni fa)
+      const twoDaysAgoMidnight = new Date();
+      twoDaysAgoMidnight.setDate(twoDaysAgoMidnight.getDate() - 2);
+      twoDaysAgoMidnight.setHours(0, 0, 0, 0);
+      
+      const twoDaysAgoEnd = new Date();
+      twoDaysAgoEnd.setDate(twoDaysAgoEnd.getDate() - 2);
+      twoDaysAgoEnd.setHours(23, 59, 59, 999);
+      
+      return data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= twoDaysAgoMidnight.getTime() && time <= twoDaysAgoEnd.getTime();
+        })
+        .map(item => ({
+          ...item,
+          // Sposta il timestamp di 1 giorno avanti per allinearlo a ieri
+          timestamp: new Date(new Date(item.timestamp).getTime() + 24 * 60 * 60 * 1000).toISOString(),
+          isPrevious: true
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    } else {
+      // Periodo precedente dello stesso range
+      const periodMs = period * 24 * 60 * 60 * 1000;
+      const startPrevious = now - (periodMs * 2);
+      const endPrevious = now - periodMs;
+      
+      return data
+        .filter(item => {
+          const time = new Date(item.timestamp).getTime();
+          return time >= startPrevious && time < endPrevious;
+        })
+        .map(item => ({
+          ...item,
+          // Sposta il timestamp in avanti per allinearlo al periodo corrente
+          timestamp: new Date(new Date(item.timestamp).getTime() + periodMs).toISOString(),
+          isPrevious: true
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    }
+  }, [data, period, showComparison, comparisonMode, customStartDate, customEndDate, filteredData]);
+
+  // Combina i dati correnti e precedenti
+  const combinedData = useMemo(() => {
+    if (!showComparison || previousPeriodData.length === 0) {
+      return filteredData;
+    }
+    
+    // Crea una mappa per timestamp
+    const dataMap = new Map();
+    
+    // Aggiungi dati correnti
+    filteredData.forEach(item => {
+      const key = item.timestamp;
+      dataMap.set(key, { timestamp: key, value: item.value });
+    });
+    
+    // Aggiungi dati precedenti
+    previousPeriodData.forEach(item => {
+      const key = item.timestamp;
+      if (dataMap.has(key)) {
+        dataMap.get(key).previousValue = item.value;
+      } else {
+        dataMap.set(key, { timestamp: key, previousValue: item.value });
+      }
+    });
+    
+    return Array.from(dataMap.values()).sort((a, b) => 
+      new Date(a.timestamp) - new Date(b.timestamp)
+    );
+  }, [filteredData, previousPeriodData, showComparison]);
 
   // Notifica il parent component quando cambiano periodo o dati filtrati
   useEffect(() => {
@@ -77,7 +254,7 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
   const formatXAxis = (timestamp) => {
     const date = new Date(timestamp);
     
-    if (period === 'today' || period === 1) {
+    if (period === 'today' || period === 'yesterday' || period === 1) {
       return format(date, 'HH:mm');
     } else if (period <= 7) {
       return format(date, 'd MMM HH:mm', { locale: it });
@@ -88,13 +265,23 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      const color = getTemperatureColor(data.value, data.timestamp);
       return (
         <div className="custom-tooltip">
-          <p className="tooltip-temp" style={{ color }}>{`${data.value.toFixed(1)}°C`}</p>
+          {payload.map((entry, index) => {
+            const color = entry.dataKey === 'value' 
+              ? getTemperatureColor(entry.value, entry.payload.timestamp)
+              : '#9ca3af';
+            const label = entry.dataKey === 'value' ? 'Attuale' : 'Precedente';
+            return (
+              <div key={index}>
+                <p className="tooltip-temp" style={{ color }}>
+                  {`${label}: ${entry.value.toFixed(1)}°C`}
+                </p>
+              </div>
+            );
+          })}
           <p className="tooltip-time">
-            {format(new Date(data.timestamp), "d MMM yyyy 'alle' HH:mm", { locale: it })}
+            {format(new Date(payload[0].payload.timestamp), "d MMM yyyy 'alle' HH:mm", { locale: it })}
           </p>
         </div>
       );
@@ -142,23 +329,120 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
 
   return (
     <div className="temperature-chart">
-      <div className="period-selector">
-        {periods.map((p) => (
-          <button
-            key={p.value}
-            className={`period-button ${period === p.value ? 'active' : ''}`}
-            onClick={() => setPeriod(p.value)}
-          >
-            {p.label}
-          </button>
-        ))}
+      <div className="chart-header">
+        <div className="period-selector">
+          {periods.map((p) => (
+            <button
+              key={p.value}
+              className={`period-button ${period === p.value ? 'active' : ''}`}
+              onClick={() => setPeriod(p.value)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        
+        <button 
+          className={`comparison-toggle ${showComparison ? 'active' : ''}`}
+          onClick={() => setShowComparison(!showComparison)}
+          title="Confronta con periodo precedente"
+        >
+          📊 Confronta
+        </button>
       </div>
+      
+      {/* Selettore periodo principale personalizzato */}
+      {period === 'custom' && (
+        <div className="custom-period-settings">
+          <div className="custom-date-range">
+            <div className="date-input-group">
+              <label htmlFor="periodStartDate">Da:</label>
+              <input
+                id="periodStartDate"
+                type="date"
+                value={customPeriodStartDate}
+                onChange={(e) => setCustomPeriodStartDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <div className="date-input-group">
+              <label htmlFor="periodEndDate">A:</label>
+              <input
+                id="periodEndDate"
+                type="date"
+                value={customPeriodEndDate}
+                onChange={(e) => setCustomPeriodEndDate(e.target.value)}
+                min={customPeriodStartDate}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            {!customPeriodEndDate && customPeriodStartDate && (
+              <span className="date-hint">Lascia vuoto per visualizzare un singolo giorno</span>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Selettore periodo personalizzato */}
+      {showComparison && (
+        <div className="comparison-settings">
+          <div className="comparison-mode">
+            <label>
+              <input
+                type="radio"
+                value="auto"
+                checked={comparisonMode === 'auto'}
+                onChange={(e) => setComparisonMode(e.target.value)}
+              />
+              <span>Periodo precedente</span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="custom"
+                checked={comparisonMode === 'custom'}
+                onChange={(e) => setComparisonMode(e.target.value)}
+              />
+              <span>Periodo personalizzato</span>
+            </label>
+          </div>
+          
+          {comparisonMode === 'custom' && (
+            <div className="custom-date-range">
+              <div className="date-input-group">
+                <label htmlFor="startDate">Da:</label>
+                <input
+                  id="startDate"
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="date-input-group">
+                <label htmlFor="endDate">A:</label>
+                <input
+                  id="endDate"
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  min={customStartDate}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              {!customEndDate && customStartDate && (
+                <span className="date-hint">Lascia vuoto per confrontare un singolo giorno</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="chart-container">
         {filteredData.length > 0 ? (
           <>
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={filteredData}>
+              <LineChart data={combinedData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#333' : '#e0e0e0'} />
                 <XAxis 
                   dataKey="timestamp" 
@@ -173,6 +457,23 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
                   tickFormatter={(value) => `${value}°C`}
                 />
                 <Tooltip content={<CustomTooltip />} />
+                
+                {/* Linea periodo precedente */}
+                {showComparison && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="previousValue" 
+                    stroke={isDarkMode ? '#fb923c' : '#f97316'}
+                    strokeWidth={3}
+                    strokeDasharray="8 4"
+                    dot={{ fill: isDarkMode ? '#fb923c' : '#f97316', r: 4, strokeWidth: 0 }}
+                    activeDot={{ r: 7, fill: isDarkMode ? '#fb923c' : '#f97316', stroke: 'white', strokeWidth: 2 }}
+                    name="Precedente"
+                    strokeOpacity={0.8}
+                  />
+                )}
+                
+                {/* Linea periodo corrente */}
                 <Line 
                   type="monotone" 
                   dataKey="value" 
@@ -185,6 +486,23 @@ const TemperatureChart = ({ data, onPeriodChange, onFilteredDataChange }) => {
             </ResponsiveContainer>
             
             <div className="chart-legend">
+              {showComparison && (
+                <>
+                  <div className="legend-item">
+                    <div className="legend-line-comparison" style={{ 
+                      background: isDarkMode ? '#fb923c' : '#f97316',
+                      borderTop: `3px dashed ${isDarkMode ? '#fb923c' : '#f97316'}`,
+                      height: '0'
+                    }}></div>
+                    <span className="legend-label">Periodo precedente</span>
+                  </div>
+                  <div className="legend-divider-small"></div>
+                </>
+              )}
+              <div className="legend-item">
+                <span className="legend-dot" style={{ backgroundColor: '#3b82f6' }}></span>
+                <span className="legend-label">Freddo</span>
+              </div>
               <div className="legend-item">
                 <span className="legend-dot" style={{ backgroundColor: '#3b82f6' }}></span>
                 <span className="legend-label">Freddo</span>
